@@ -21,6 +21,8 @@ pub fn index() -> &'static str {
     "Connected to the PostgreSQL database!"
 }
 
+// User CRUD operations
+
 #[get("/users")]
 pub fn get_users() -> String { 
     use crate::schema::users::dsl::*; // import the `users` table
@@ -70,3 +72,29 @@ pub fn delete_user(id: i32) -> Json<usize> {
     let connection = db::establish_connection();
     Json(db::delete_user(&connection, id).unwrap())
 }
+
+// Task CRUD operations
+
+use crate::models::{Task, NewTask};
+
+#[post("/tasks", format = "json", data = "<task>")]
+pub fn create_task(task: Json<NewTask>) -> Json<Task> {
+    let connection = db::establish_connection();
+    Json(db::create_task(&connection, task.into_inner()).unwrap())
+}
+
+// --- TESTS ---
+
+#[cfg(test)]
+mod routes_tests {
+    use super::*;
+    use crate::models::NewUser;
+    use diesel::connection::TransactionManager;
+    use diesel::Connection;
+
+    #[test]
+    fn test_create_user() {
+        // content  
+    }
+}
+

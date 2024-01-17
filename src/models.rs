@@ -1,9 +1,10 @@
 
 // models.rs -- structs for querying data
 
+use chrono::NaiveDate;
 use serde::{Serialize, Deserialize};
-use diesel::{Insertable, Queryable, AsChangeset};
-use crate::schema::users;
+use diesel::{Insertable, Queryable, AsChangeset, Associations};
+use crate::schema::{users, tasks};
 
 #[derive(Queryable, Serialize, Deserialize)]
 pub struct User {
@@ -25,3 +26,25 @@ pub struct UpdateUser {
     pub username: Option<String>,
     pub email: Option<String>,
 }
+
+#[derive(Queryable, Serialize, Deserialize, Associations)]
+#[belongs_to(User)]
+pub struct Task {
+    pub id: i32,
+    pub title: String,
+    pub description: Option<String>,
+    pub due_date: Option<NaiveDate>,
+    pub status: bool,
+    pub user_id: Option<i32>,
+}
+
+#[derive(Insertable, Serialize, Deserialize)]
+#[table_name = "tasks"]
+pub struct NewTask {
+    pub title: String,
+    pub description: Option<String>,
+    pub due_date: Option<NaiveDate>,
+    pub status: bool,
+    pub user_id: Option<i32>,
+}
+
