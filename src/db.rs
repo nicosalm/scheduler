@@ -47,7 +47,7 @@ pub fn delete_user(conn: &PgConnection, user_id: i32) -> QueryResult<usize> {
 
 // Task CRUD operations
 
-use crate::models::{Task, NewTask};
+use crate::models::{Task, NewTask, UpdateTask};
 
 pub fn create_task(conn: &PgConnection, new_task: NewTask) -> QueryResult<Task> {
     use crate::schema::tasks::dsl::*;
@@ -55,6 +55,30 @@ pub fn create_task(conn: &PgConnection, new_task: NewTask) -> QueryResult<Task> 
         .values(&new_task)
         .get_result(conn)
 }
+
+pub fn get_task(conn: &PgConnection, task_id: i32) -> QueryResult<Task> {
+    use crate::schema::tasks::dsl::*;
+    tasks.find(task_id).first(conn)
+}
+
+pub fn get_all_tasks(conn: &PgConnection) -> QueryResult<Vec<Task>> {
+    use crate::schema::tasks::dsl::*;
+    tasks.load::<Task>(conn)
+}
+
+pub fn update_task(conn: &PgConnection, task_id: i32, task_data: UpdateTask) -> QueryResult<Task> {
+    use crate::schema::tasks::dsl::*;
+    diesel::update(tasks.find(task_id))
+        .set(&task_data)
+        .get_result(conn)
+}
+
+pub fn delete_task(conn: &PgConnection, task_id: i32) -> QueryResult<usize> {
+    use crate::schema::tasks::dsl::*;
+    diesel::delete(tasks.find(task_id)).execute(conn)
+}
+
+
 
 // --- TESTS ---
 

@@ -48,3 +48,12 @@ pub struct NewTask {
     pub user_id: Option<i32>,
 }
 
+#[derive(AsChangeset, Serialize, Deserialize)]
+#[table_name = "tasks"]
+pub struct UpdateTask {
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub due_date: Option<NaiveDate>,
+    pub status: Option<bool>,
+    pub user_id: Option<i32>,
+}

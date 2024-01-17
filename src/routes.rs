@@ -75,12 +75,38 @@ pub fn delete_user(id: i32) -> Json<usize> {
 
 // Task CRUD operations
 
-use crate::models::{Task, NewTask};
+use crate::models::{Task, NewTask, UpdateTask};
 
 #[post("/tasks", format = "json", data = "<task>")]
 pub fn create_task(task: Json<NewTask>) -> Json<Task> {
     let connection = db::establish_connection();
     Json(db::create_task(&connection, task.into_inner()).unwrap())
+}
+
+#[get("/tasks")]
+pub fn get_all_tasks() -> Json<Vec<Task>> {
+    let connection = db::establish_connection();
+    Json(db::get_all_tasks(&connection).unwrap())
+}
+
+#[get("/tasks/<id>")]
+pub fn get_task(id: i32) -> Json<Task> {
+    let connection = db::establish_connection();
+    Json(db::get_task(&connection, id).unwrap())
+}
+
+#[put("/tasks/<id>", format = "json", data = "<task_data>")]
+pub fn update_task(id: i32, task_data: Json<UpdateTask>) -> Result<Json<Task>, Status> {
+    let connection = db::establish_connection();
+    db::update_task(&connection, id, task_data.into_inner())
+        .map(Json)
+        .map_err(|_| Status::InternalServerError)    
+}
+
+#[delete("/tasks/<id>")]
+pub fn delete_task(id: i32) -> Json<usize> {
+    let connection = db::establish_connection();
+    Json(db::delete_task(&connection, id).unwrap())
 }
 
 // --- TESTS ---
