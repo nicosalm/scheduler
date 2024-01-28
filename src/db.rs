@@ -1,4 +1,3 @@
-
 // src/db.rs -- databse connection
 
 use diesel::prelude::*;
@@ -85,7 +84,7 @@ pub fn delete_task(conn: &PgConnection, task_id: i32) -> QueryResult<usize> {
 #[cfg(test)]
 mod db_tests {
     use super::*;
-    use crate::models::{NewUser, NewTask};
+    use crate::models::{NewUser, NewTask, UserRole};
     use diesel::connection::TransactionManager;
     use diesel::Connection;
 
@@ -96,10 +95,11 @@ mod db_tests {
         // Start a transaction so we can roll it back later
         let transaction = conn.transaction_manager();
         transaction.begin_transaction(&conn).unwrap();
-
+        
         let new_user = NewUser {
             username: "testuser".to_string(),
             email: "test@example.com".to_string(),
+            role: UserRole::Member,
             // Add any additional fields that your NewUser struct requires
         };
         let result = create_user(&conn, new_user);

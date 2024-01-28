@@ -5,20 +5,21 @@
 
 use rocket::{get, post, put, delete};
 use rocket::http::Status;
-use rocket::serde::json::Json;
+use rocket::serde::{json::Json, Deserialize, Serialize};
 use diesel::prelude::*;
+use crate::auth::AuthenticatedUser;
 
 use crate::db;
-use crate::models::{User, NewUser, UpdateUser};
+use crate::models::{User, NewUser, UpdateUser, UserRole};
 
 #[get("/")]
 pub fn index() -> &'static str {
-    // Attempt to connect to the database
-    let _connection = db::establish_connection();
+    "Hello, world!"
+}
 
-    // Here you can make queries to the database using `_connection`
-    // For now, we'll just return a simple message
-    "Connected to the PostgreSQL database!"
+#[get("/protected")]
+pub fn protected_route(user: AuthenticatedUser) -> String {
+    format!("Welcome, user {} with role {:?}", user.user_id, user.role)
 }
 
 // User CRUD operations
@@ -77,10 +78,15 @@ pub fn delete_user(id: i32) -> Json<usize> {
 
 use crate::models::{Task, NewTask, UpdateTask};
 
-#[post("/tasks", format = "json", data = "<task>")]
-pub fn create_task(task: Json<NewTask>) -> Json<Task> {
+#[post("/tasks", format = "json", data = "<task_data>")]
+pub fn create_task(user: AuthenticatedUser, task_data: Json<NewTask>) -> Json<Task> {
+
+    if user.role != UserRole::Admin {
+        // TODO: return error
+    }
+
     let connection = db::establish_connection();
-    Json(db::create_task(&connection, task.into_inner()).unwrap())
+    Json(db::create_task(&connection, task_data.into_inner()).unwrap())
 }
 
 #[get("/tasks")]
@@ -107,6 +113,38 @@ pub fn update_task(id: i32, task_data: Json<UpdateTask>) -> Result<Json<Task>, S
 pub fn delete_task(id: i32) -> Json<usize> {
     let connection = db::establish_connection();
     Json(db::delete_task(&connection, id).unwrap())
+}
+
+// Login 
+
+use crate::auth::generate_jwt;
+
+#[derive(Deserialize)]
+struct LoginRequest {
+    username: String,
+    password: String,
+}
+
+#[derive(Serialize)]
+struct LoginResponse {
+    token: String,
+}
+
+// TODO: Implement Login Logic and return JWT; add Password to User model, hash it and store it in the DB
+
+#[post("/login", format = "json", data = "<login_request>")]
+pub fn login(login_request: Json<LoginRequest>) -> Result<Json<LoginResponse>, Status> {
+    let connection = db::establish_connection();
+    let user = db::get_user_by_username(&connection, &login_request.username)
+        .map_err(|_| Status::InternalServerError)?;
+
+    if user.password != login_request.password {
+        return Err(Status::Unauthorized);
+    }
+
+    let token = generate_jwt(user.id, user.role)?;
+
+    Ok(Json(LoginResponse { token }))
 }
 
 // --- TESTS ---

@@ -8,6 +8,7 @@ pub mod db;
 pub mod models;
 pub mod routes;
 mod schema;
+mod auth;
 
 #[launch]
 fn rocket() -> _ {
