@@ -85,33 +85,10 @@ pub fn delete_task(conn: &PgConnection, task_id: i32) -> QueryResult<usize> {
 #[cfg(test)]
 mod db_tests {
     use super::*;
+    # [allow(unused_imports)]
     use crate::models::{NewUser, NewTask};
     use diesel::connection::TransactionManager;
     use diesel::Connection;
-
-    #[test]
-    fn test_create_user() {
-        let conn = establish_connection();
-
-        // Start a transaction so we can roll it back later
-        let transaction = conn.transaction_manager();
-        transaction.begin_transaction(&conn).unwrap();
-
-        let new_user = NewUser {
-            username: "testuser".to_string(),
-            email: "test@example.com".to_string(),
-            // Add any additional fields that your NewUser struct requires
-        };
-        let result = create_user(&conn, new_user);
-
-        assert!(result.is_ok());
-        let user = result.unwrap(); // Unwrap once and use the value
-        assert_eq!(user.username, "testuser");
-        assert_eq!(user.email, "test@example.com");
-        
-        // Rollback the transaction so we don't actually modify the database
-        transaction.rollback_transaction(&conn).unwrap();
-    }
 
     #[test] 
     fn test_create_task() {

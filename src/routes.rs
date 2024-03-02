@@ -108,19 +108,3 @@ pub fn delete_task(id: i32) -> Json<usize> {
     let connection = db::establish_connection();
     Json(db::delete_task(&connection, id).unwrap())
 }
-
-// --- TESTS ---
-
-#[cfg(test)]
-mod routes_tests {
-    use super::*;
-    use crate::models::NewUser;
-    use diesel::connection::TransactionManager;
-    use diesel::Connection;
-
-    #[test]
-    fn test_create_user() {
-        // content  
-    }
-}
-
