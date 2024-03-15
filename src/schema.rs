@@ -12,10 +12,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use crate::models::UserRole;
+
     users (id) {
         id -> Int4,
         username -> Varchar,
         email -> Varchar,
+        password -> Varchar,
+        role -> UserRole,
+        task_count -> Nullable<Int8>,
+        completed_task_count -> Nullable<Int8>,
+        incomplete_task_count -> Nullable<Int8>,
+        overdue_task_count -> Nullable<Int8>,
     }
 }
 
