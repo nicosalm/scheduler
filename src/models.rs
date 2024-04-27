@@ -1,7 +1,8 @@
 // models.rs -- structs for querying data
 
 use chrono::NaiveDate;
-use serde::{Serialize, Deserialize};
+use serde::{Serialize, Deserialize, Serializer, Deserializer};
+use serde::de::{self, Visitor};
 use diesel::{Insertable, Queryable, AsChangeset, Associations};
 use crate::schema::{users, tasks};
 use diesel::deserialize::{self, FromSql};
@@ -10,33 +11,7 @@ use diesel::serialize::{self, Output, ToSql};
 use diesel::sql_types::Text;
 use diesel::{AsExpression, FromSqlRow};
 use std::io::Write;
-
-#[derive(Debug, Clone, Copy, AsExpression, FromSqlRow)]
-#[sql_type = "Text"]
-pub enum UserRole {
-    Admin,
-    Member,
-}
-
-impl ToSql<Text, Pg> for UserRole {
-    fn to_sql<W: Write>(&self, out: &mut Output<W, Pg>) -> serialize::Result {
-        match self {
-            UserRole::Admin => out.write_all(b"admin")?,
-            UserRole::Member => out.write_all(b"member")?,
-        }
-        Ok(serialize::IsNull::No)
-    }
-}
-
-impl FromSql<Text, Pg> for UserRole {
-    fn from_sql(bytes: Option<&<Pg as diesel::backend::Backend>::RawValue>) -> deserialize::Result<Self> {
-        match <String as FromSql<Text, Pg>>::from_sql(bytes)?.as_str() {
-            "admin" => Ok(UserRole::Admin),
-            "member" => Ok(UserRole::Member),
-            _ => Err("Unrecognized user role".into()),
-        }
-    }
-}
+use std::fmt;
 
 #[derive(Queryable, Serialize, Deserialize)]
 pub struct User {
@@ -54,7 +29,7 @@ pub struct User {
 pub struct NewUser {
     pub username: String,
     pub email: String,
-    pub role: UserRole,
+    pub is_admin: bool,
 }
 
 #[derive(AsChangeset, Serialize, Deserialize)]

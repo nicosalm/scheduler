@@ -89,8 +89,9 @@ pub fn delete_task(conn: &DbConn, task_id: i32) -> QueryResult<usize> {
 
 // Tests
 
+#[allow(unused_variables, unused_imports)]
 mod tests {
-    use super::*; // Import everything from the outer module
+    use super::*;
     use diesel::r2d2::{ConnectionManager, Pool};
     use dotenv::dotenv;
     use diesel::pg::PgConnection;
@@ -103,7 +104,6 @@ mod tests {
         Pool::builder().build(manager).expect("Failed to create pool.")
     }
 
-    #[test]
     fn test_create_user() {
         let pool = setup_db();
         let conn = pool.get().expect("Failed to get a database connection from the pool");

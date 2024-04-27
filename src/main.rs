@@ -11,7 +11,7 @@ pub mod schema;
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .attach(db::stage()) // Ensure this is the correct function to attach the DB pool
+        .attach(db::stage())
         .mount("/users", routes![
             routes::get_all_users,
             routes::create_user,
