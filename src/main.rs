@@ -1,3 +1,4 @@
+
 // src/main.rs
 
 #[macro_use] extern crate rocket;
@@ -8,10 +9,13 @@ pub mod models;
 pub mod routes;
 pub mod schema;
 
+use rocket::fs::FileServer;
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
         .attach(db::stage())
+        .mount("/", FileServer::from("/public"))
         .mount("/users", routes![
             routes::get_all_users,
             routes::create_user,

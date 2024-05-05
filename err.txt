@@ -1,0 +1,19 @@
+   Compiling scheduler v0.1.0 (/Users/nicosalm/dev/scheduler)
+error[E0412]: cannot find type `PgConn` in this scope
+   --> src/db.rs:101:26
+    |
+13  | type DbConn = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
+    | ---------------------------------------------------------------------- similarly named type alias `DbConn` defined here
+...
+101 |     fn clear_data(conn: &PgConn) {
+    |                          ^^^^^^ help: a type alias with a similar name exists: `DbConn`
+
+error[E0063]: missing fields `task_count_complete`, `task_count_current`, `task_count_incomplete` and 1 other field in initializer of `models::UpdateUser`
+   --> src/db.rs:139:28
+    |
+139 |         let updated_data = UpdateUser {
+    |                            ^^^^^^^^^^ missing `task_count_complete`, `task_count_current`, `task_count_incomplete` and 1 other field
+
+Some errors have detailed explanations: E0063, E0412.
+For more information about an error, try `rustc --explain E0063`.
+error: could not compile `scheduler` (bin "scheduler" test) due to 2 previous errors

@@ -1,27 +1,22 @@
+
 // models.rs -- structs for querying data
 
-use chrono::NaiveDate;
-use serde::{Serialize, Deserialize, Serializer, Deserializer};
-use serde::de::{self, Visitor};
+use chrono::{NaiveDate, NaiveDateTime};
+use serde::{Serialize, Deserialize};
 use diesel::{Insertable, Queryable, AsChangeset, Associations};
 use crate::schema::{users, tasks};
-use diesel::deserialize::{self, FromSql};
-use diesel::pg::Pg;
-use diesel::serialize::{self, Output, ToSql};
-use diesel::sql_types::Text;
-use diesel::{AsExpression, FromSqlRow};
-use std::io::Write;
-use std::fmt;
 
 #[derive(Queryable, Serialize, Deserialize)]
 pub struct User {
     pub id: i32,
     pub username: String,
     pub email: String,
-    pub task_count: i64,
-    pub completed_task_count: i64,
-    pub incomplete_task_count: i64,
-    pub overdue_task_count: i64,
+    pub password: String, // Ensure the password field is handled securely.
+    pub is_super: bool,
+    pub task_count_current: Option<i64>,
+    pub task_count_complete: Option<i64>,
+    pub task_count_incomplete: Option<i64>,
+    pub task_count_overdue: Option<i64>,
 }
 
 #[derive(Insertable, Serialize, Deserialize)]
@@ -29,7 +24,8 @@ pub struct User {
 pub struct NewUser {
     pub username: String,
     pub email: String,
-    pub is_admin: bool,
+    pub password: String, // Ensure passwords are hashed before being saved
+    pub is_super: bool,
 }
 
 #[derive(AsChangeset, Serialize, Deserialize)]
@@ -37,10 +33,12 @@ pub struct NewUser {
 pub struct UpdateUser {
     pub username: Option<String>,
     pub email: Option<String>,
-    pub task_count: Option<i64>,
-    pub completed_task_count: Option<i64>,
-    pub incomplete_task_count: Option<i64>,
-    pub overdue_task_count: Option<i64>,
+    pub password: Option<String>, // Consider security implications
+    pub is_super: Option<bool>,
+    pub task_count_current: Option<i64>,
+    pub task_count_complete: Option<i64>,
+    pub task_count_incomplete: Option<i64>,
+    pub task_count_overdue: Option<i64>,
 }
 
 #[derive(Queryable, Serialize, Deserialize, Associations)]
@@ -49,7 +47,9 @@ pub struct Task {
     pub id: i32,
     pub title: String,
     pub description: Option<String>,
-    pub due_date: Option<NaiveDate>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    pub due: Option<NaiveDate>,
     pub status: bool,
     pub user_id: Option<i32>,
 }
@@ -59,7 +59,7 @@ pub struct Task {
 pub struct NewTask {
     pub title: String,
     pub description: Option<String>,
-    pub due_date: Option<NaiveDate>,
+    pub due: Option<NaiveDate>,
     pub status: bool,
     pub user_id: Option<i32>,
 }
@@ -69,7 +69,7 @@ pub struct NewTask {
 pub struct UpdateTask {
     pub title: Option<String>,
     pub description: Option<String>,
-    pub due_date: Option<NaiveDate>,
+    pub due: Option<NaiveDate>,
     pub status: Option<bool>,
     pub user_id: Option<i32>,
 }

@@ -5,25 +5,25 @@ diesel::table! {
         id -> Int4,
         title -> Varchar,
         description -> Nullable<Text>,
-        due_date -> Nullable<Date>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+        due -> Nullable<Date>,
         status -> Bool,
         user_id -> Nullable<Int4>,
     }
 }
 
 diesel::table! {
-    use diesel::sql_types::*;
-
     users (id) {
         id -> Int4,
         username -> Varchar,
         email -> Varchar,
         password -> Varchar,
-        is_admin -> Bool,
-        task_count -> Nullable<Int8>,
-        completed_task_count -> Nullable<Int8>,
-        incomplete_task_count -> Nullable<Int8>,
-        overdue_task_count -> Nullable<Int8>,
+        is_super -> Bool,
+        task_count_current -> Nullable<Int8>,
+        task_count_complete -> Nullable<Int8>,
+        task_count_incomplete -> Nullable<Int8>,
+        task_count_overdue -> Nullable<Int8>,
     }
 }
 

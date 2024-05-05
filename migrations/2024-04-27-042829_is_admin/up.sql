@@ -1,4 +1,0 @@
--- Your SQL goes here
-ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT FALSE;
-ALTER TABLE users DROP COLUMN role;
-DROP TYPE UserRole;
